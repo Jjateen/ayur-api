@@ -60,7 +60,7 @@ class ScoringItem(BaseModel):
 with open('clf.pkl', 'rb') as f:
     model = pickle.load(f)
 
-@app.post("/", tags=["Root"])
+@app.post("/")
 async def scoring_endpoint(item:ScoringItem):
     df = pd.DataFrame([item.dict().values()], columns=item.dict().keys())
     yhat = model.predict(df)
