@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pickle
 import pandas as pd
+import numpy as np
 
 app = FastAPI()
 
@@ -75,10 +76,14 @@ with open('clf.pkl', 'rb') as f:
     model = pickle.load(f)
 
 @app.post('/')
-async def scoring_endpoint(item:ScoringItem):
+async def scoring_endpoint(item: ScoringItem):
     df = pd.DataFrame([item.dict().values()], columns=item.dict().keys())
-    yhat = model.predict(df)
-    return {"prediction":int(yhat)}
+    y_proba = model.predict_proba(df)
+    y_proba *=100
+    predicted_class = int(np.argmax(y_proba))
+    confidence_values = y_proba.tolist()[0]
+    return {"prediction": predicted_class, "confidence": confidence_values}
+
 @app.get('/')
 async def read_root():
     return "Welcome to Prakriti ChatBot!"
