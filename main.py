@@ -79,3 +79,6 @@ async def scoring_endpoint(item:ScoringItem):
     df = pd.DataFrame([item.dict().values()], columns=item.dict().keys())
     yhat = model.predict(df)
     return {"prediction":int(yhat)}
+@app.get('/')
+async def read_root():
+    return "Welcome to Prakriti ChatBot!"
