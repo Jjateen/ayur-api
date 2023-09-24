@@ -1,9 +1,23 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import pickle
 import pandas as pd
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    # "http://localhost:8000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class ScoringItem(BaseModel):
     Gender:int
@@ -60,7 +74,7 @@ class ScoringItem(BaseModel):
 with open('clf.pkl', 'rb') as f:
     model = pickle.load(f)
 
-@app.post("/")
+@app.post('/')
 async def scoring_endpoint(item:ScoringItem):
     df = pd.DataFrame([item.dict().values()], columns=item.dict().keys())
     yhat = model.predict(df)
